@@ -68,8 +68,7 @@ CREATE TABLE Game_Review (
 CREATE TABLE Payment (
   Transaction_ID int,
   Payment_Amount int,
-  Transaction_ID int,
-  Status bool
+  Payment_Status bool
 );
 
 CREATE TABLE Wallet (
