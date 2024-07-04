@@ -13,7 +13,7 @@ CREATE TABLE Game (
   Title varchar(100),
   Genre varchar(50),
   Release_Date date,
-  Game_Descr varchar(100),
+  Game_Desc varchar(100),
   Rating float,
   Developer varchar(100),
   Price int,
