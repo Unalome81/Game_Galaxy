@@ -47,7 +47,7 @@ CREATE TABLE Authentication (
 
 CREATE TABLE Address (
   Address_ID int,
-  Customer_D int,
+  Customer_ID int,
   Address_Line1 varchar(50),
   Address_Line2 varchar(50),
   City varchar(30),
