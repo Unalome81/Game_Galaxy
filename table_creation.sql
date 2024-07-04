@@ -1,5 +1,5 @@
 CREATE TABLE Customer (
-  Customer_ID int,
+  Customer_ID varchar(50),
   FirstName varchar(100),
   LastName varchar(100),
   PhoneNo int,
@@ -22,7 +22,7 @@ CREATE TABLE Game (
 
 CREATE TABLE Orders (
   Order_ID int,
-  Customer_ID int,
+  Customer_ID varchar(50),
   Order_Amount int,
   Order_Status bool,
   Transaction_ID int,
@@ -32,7 +32,7 @@ CREATE TABLE Orders (
 );
 
 CREATE TABLE Cart (
-  Customer_ID int,
+  Customer_ID varchar(50),
   Game_ID int,
   Quantity int,
   PRIMARY KEY (Customer_ID, Game_ID)
@@ -47,7 +47,7 @@ CREATE TABLE Authentication (
 
 CREATE TABLE Address (
   Address_ID int,
-  Customer_ID int,
+  Customer_ID varchar(50),
   Address_Line1 varchar(50),
   Address_Line2 varchar(50),
   City varchar(30),
@@ -58,7 +58,7 @@ CREATE TABLE Address (
 );
 
 CREATE TABLE Game_Review (
-  Customer_ID int,
+  Customer_ID varchar(50),
   Game_ID int,
   Review varchar(1000),
   Rating int,
@@ -74,7 +74,7 @@ CREATE TABLE Payment (
 
 CREATE TABLE Wallet (
   Wallet_ID int,
-  Customer_ID int,
+  Customer_ID varchar(50),
   Balance int,
   PRIMARY KEY (Wallet_ID)
 );
