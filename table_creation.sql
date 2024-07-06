@@ -1,3 +1,6 @@
+create database game_galaxy;
+use game_galaxy;
+
 CREATE TABLE Customer (
   Customer_ID varchar(50),
   FirstName varchar(100),
