@@ -44,7 +44,7 @@ CREATE TABLE Cart (
 CREATE TABLE Authentication (
   Customer_ID varchar(50),
   Email varchar(100),
-  Customer_Password varbinary(255),
+  Customer_Password varcar(100),
   PRIMARY KEY (Customer_ID)
 );
 
