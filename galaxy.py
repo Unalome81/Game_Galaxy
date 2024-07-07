@@ -7,12 +7,16 @@ wt_time = 5
 
 class User():
     cart=[]
+    adr=[]
+    wallets=[]
     f_name=""
     cid=-1
     def __init__(self, cid, f_name):
         self.cid = cid
         self.f_name = f_name
     def start_session(self):
+        self.adr= sql.Load_addresses(self.cid)
+        self.wallets=sql.Load_wallets(self.cid)
         self.cart=sql.Load_cart_SQL(self.cid)
     def end_session(self):
         sql.Dump_cart_SQL(self.cid,self.cart)
@@ -29,6 +33,59 @@ class User():
         for i in self.cart:
             if(i[0]==item):
                 i[2]=max(0,i[2]-q)
+    def printaddr(self):
+        print(f"S.no. ",end="")
+        for j in self.adr[i]:
+            print(f"{j} ",end="\t")
+        print()
+        for i in range(len(self.adr)):
+            print(f"({i+1}) ",end="")
+            for j in self.adr[i]:
+                print(f"{self.adr[i][j]} , ",end="")
+            print()
+    def add_addr(self):
+        print("Enter the details of the new address")
+        Customer_ID=self.cid
+        Address_Line1= input("Enter Address_Line1 : ")
+        Address_Line2= input("Enter Address_Line2 : ")
+        City = input("Enter City : ")
+        State = input("Enter State : ")
+        Postal_Code = input("Enter Postal_Code : ")
+        Country = input("Enter Country : ")
+        addr_id=sql.Register_address(Customer_ID,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
+        self.adr.append(addr_id,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
+
+    def printwallet(self):
+        print(f"S.no. ",end="")
+        for j in self.wallets[i]:
+            print(f"{j} ",end="\t")
+        print()
+        for i in range(len(self.wallets)):
+            print(f"({i+1}) ",end="")
+            for j in self.wallets[i]:
+                print(f"{self.wallets[i][j]} , ",end="")
+            print()
+    
+    def add_wallet(self):
+        print("Enter the details of the new address")
+        Customer_ID=self.cid
+        Balence = -1
+        while Balence <= 0:
+            try:
+                Balence = float(input("Enter the amount to add to your wallet: "))
+                if Balence <= 0:
+                    print("Invalid amount. Please enter a positive value.")
+            except ValueError:
+                print("Invalid input. Please enter a numeric value.")
+            w_id=sql.Register_wallet(Customer_ID,Balence)
+        self.wallets.append(w_id)
+    
+    def rem_wallet(self,i):
+        sql.remove_wallet(self.cid,self.wallets[i])
+        self.adr.pop(i)
+    def rem_adr(self,i):
+        sql.remove_adress(self.cid,self.adr[i][0])
+        self.wallets.pop(i)
 
 def clearscreen():
     if platform.system() == 'Windows':
@@ -137,6 +194,7 @@ def Game_Review(c_user):
         else:
             print("Home: Invalid Input")
     return
+
 def Home(c_user):
     c = 0
     c_user.start_session()
@@ -161,31 +219,133 @@ def Home(c_user):
             print("Home: Invalid Input")
         time.sleep(wt_time)    
 
-# add address: which one chose 1  or add new
-# add wallet: which one chose 1  or add new
-# rem addresses : if you dont want to save
-# rem wallets : if you dont want to save
 # change in particulars and password
-# view profife
-# view old orders
+def manage_addr(c_user):
+    c=-2
+    while c<-1 or c> len(c_user.adr):
+        clearscreen()
+        print("======================================================================================")
+        print(f"Your registerd addreses")
+        print("======================================================================================")    
+        c_user.printaddr()
+        print()
+        print("Enter -1 to go back")
+        print("Enter 0 to add another address")
+        print("Else enter the S.No of the address Record to be removed")
+        c = int(input("Your input : "))
+        if(c<-1 or c> len(c_user.adr)):
+            print("Error: Invalid input")
+    if(c==-1):
+        return
+    elif(c==0):
+        c_user.add_addr()
+    else:
+        c_user.rem_adr(c-1)
+
+def manage_wlt(c_user):
+    c=-2
+    while c<-1 or c> len(c_user.wallets):
+        clearscreen()
+        print("======================================================================================")
+        print(f"Your registerd addreses")
+        print("======================================================================================")    
+        c_user.printwallet()
+        print()
+        print("Enter -1 to go back")
+        print("Enter 0 to add another address")
+        print("Else enter the S.No of the address Record to be removed")
+        c = int(input("Your input : "))
+        if(c<-1 or c> len(c_user.wallets)):
+            print("Error: Invalid input")
+    if(c==-1):
+        return
+    elif(c==0):
+        c_user.add_wallet()
+    else:
+        c_user.rem_wallet(c-1)
+
+def update(c_user): 
+    c=-1
+    while c!=0:
+        clearscreen()
+        print("Enter 0 to go back")
+        print("Or Else Choose what you wish to update")
+        print("Enter 1 to update your Name")
+        print("Enter 2 to update your Mobile No.")
+        print("Enter 3 to update your Date of birth")
+        print("Enter 4 to update your Email")
+        print("Enter 5 to update your Password")
+        c=int(input("Enter your choice : "))
+        if(c==0):
+            pass
+        elif(c==1):
+            first_name = input("Update: Enter your First Name: ")
+            last_name = input("Update: Enter your Last Name: ")
+            sql.update_name(c_user.cid,first_name,last_name)
+        elif(c==2):
+            mobile = input("Update: Enter your phone number: ")
+            sql.update_mobile(c_user.cid,mobile)
+        elif(c==3):
+            dob = input("Update: Enter your date of birth (yyyy-mm-dd): ")
+            sql.update_dob(c_user.cid,dob)
+        elif(c==4):
+            email = input("Update: Enter your Email: ")
+            ch=sql.update_mail(c_user.cid,email)
+            if ch == 1:
+                print("This mail is already Registered to our Galaxy!")
+            elif ch!=0:
+                print("Email Update Failed :( Please Retry!!")
+        elif(c==5):
+            confpassword="a"
+            password="b"
+            while password!=confpassword:
+                password = input("Update: Choose a Password: ")
+                confpassword = input("Update: Confirm the Password: ")
+                if(password!=confpassword):
+                    print("ERROR: Passwords don't match")
+                    retry = input("Do you wish to retry? (y for yes): ")
+                    if retry.lower() != 'y':
+                        return
+            sql.update_pass(c_user.cid,password)
+        else:
+            print("Home: Invalid Input")
+        time.sleep(wt_time) 
+
+
+
+
 def View_Profile(c_user):
-    clearscreen()
-    
-    while(True):
-        print("Profile: \n\t Enter 1 to view your details \n\t Enter 2 to update your details \n\t Enter 3 to go back to home")
-        ch = input()
-        if(ch == "1"):
-            Customer_Details = Get_Customer_Details_SQL(c_user.cid)
+    c = 0
+    while c != 5:
+        clearscreen()
+        print("======================================================================================")
+        print(f"Profile: {c_user.f_name}")
+        print("======================================================================================")
+        print("Profile: \n\t Enter 1 to view your details \n\t Enter 2 to manage your address list \n\t Enter 3 to manage your wallets \n\t Enter 4 to view your old orders \n\t Enter 5 to edit your particulars \n\t Enter 6 to go back to home")
+        c = input()
+        if c == 1:
+            Customer_Details = sql.Get_Customer_Details_SQL(c_user.cid)
             for key, value in Customer_Details.items():
                 print(f"{key}: {value}")
-        elif(ch == "2"):
-            print("You cannot change Ennter your new details: ")
-        elif(ch == "3"):
-            break
-        else 
-            print("Profile: Invalid Inpur")
+        elif c == 2:
+            manage_addr(c_user)
+        elif c == 3:
+            manage_wlt(c_user)
+        elif c == 4:
+            print("Your orders:")
+            Customer_Details = sql.Get_Customer_Orders(c_user.cid)
+            for i in Customer_Details:
+                print(f"order_id : {i[0]} , order_status : {i[1]} , total_price : {i[2]} , transaction_id : {i[3]} , w_id : {i[4]} , addr_id : {i[5]} , item_list :")
+                for j in i[6]:
+                    print(f"Game_id : {j[0]}  Quantity : {j[1]}")
+        elif c == 5:
+            update(c_user)
+        elif c == 6:
+            return
+        else:
+            print("Home: Invalid Input")
+        time.sleep(wt_time) 
     
-
 def View_Games(c_user):
     clearscreen()
     rating_filter = -1
@@ -297,8 +457,30 @@ def Cart(c_user):
             if len(c_user.cart) == 0:
                 print("Cart is empty. Add items to cart before checkout.")
             else:
-                if(Checkout(c_user)):
-                    c_user.cart.clear()
+                c=-1
+                while c<0 or c> len(c_user.adr):
+                    print("Please choose a address :")
+                    c_user.printaddr()
+                    c = int(input("Enter S.No. of the chossen address else Enter 0 to add new: "))
+                if(c==0):
+                    c_user.add_addr()
+                    c=len(c_user.adr)
+                add_index=c-1
+                c=-1
+                while c<0 or c> len(c_user.wallets):
+                    print("Please choose a address :")
+                    c_user.printwallet()
+                    c = int(input("Enter S.No. of the chossen Wallet else Enter 0 to add new: "))
+                if(c==0):
+                    c_user.add_wallet()
+                    c=len(c_user.wallets)
+                wallet_index=c-1
+                i = input(f"wallet ID : {wallet_index} \n Addresss ID : {add_index} \n If you wish to proceed, Enter 'y': ")
+                if i.lower()=='y':
+                    status, total_price, transaction_id =Checkout(c_user,c_user[wallet_index])
+                    if(status):
+                        sql.log_order(c_user.cid,status,total_price,transaction_id,[(i[0],i[2]) for i in c_user.cart],c_user.wallets[wallet_index],c_user.adr[add_index][0])
+                        c_user.cart.clear()
             time.sleep(wt_time)
         elif ch == 6:
             return
@@ -306,23 +488,17 @@ def Cart(c_user):
             print("Invalid choice. Please try again.")
             time.sleep(wt_time)
 
-# chose address: which one chose 1  or add new
-# chose wallet: which one chose 1  or add new
-# add to orders -> wallet ,time and date , items , bill
-def Checkout(c_user):
+def Checkout(c_user,wid):
     clearscreen()
     print("======================================================================================")
     print("Checkout")
     print("======================================================================================")
-    
-    # Calculate total price using SQL function
+    print()
     total_price = sql.Calculate_Total_Price_SQL(c_user.cid, c_user.cart)
     print(f"Total price of items in cart: {total_price}")
-    
     # Check the user's wallet balance using SQL function
-    wallet_balance = sql.Check_Wallet_Balance_SQL(c_user.cid)
+    wallet_balance = sql.Check_Wallet_Balance_SQL(c_user.cid,wid)
     print(f"Your current wallet balance: {wallet_balance}")
-
     while wallet_balance < total_price:
         print("Insufficient wallet balance.")
         add_money = input("Do you want to add money to your wallet? (yes/no): ")
@@ -338,16 +514,18 @@ def Checkout(c_user):
         else:
             print("Payment cancelled.")
             input("Press Enter to continue...")
-            return False
+            transaction_id=sql.log_unsuccessfull_transaction(c_user.cid, wid, total_price)
+            return False, total_price, None
 
     confirm = input("Do you want to proceed with the payment? (yes/no): ")
     if confirm.lower() == 'yes':
-        sql.Transaction_SQL(c_user.cid, total_price)
+        transaction_id = sql.Transaction_SQL(c_user.cid, wid, total_price)
         print("Transaction successful! Thank you for your purchase.")
-        return True
+        return True, total_price, transaction_id
     else:
         print("Transaction cancelled.")
-        return False
+        transaction_id=sql.log_unsuccessfull_transaction(c_user.cid, wid, total_price)
+        return False, total_price, transaction_id
     
 def AddMoneyToWallet(c_user):
     amount_to_add = -1

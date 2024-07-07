@@ -170,29 +170,72 @@ def RemnoveRating(cid,game_id):
 def findRatings_bygid_SQL(game_id):
 
 
-
 # fid ratings in this form list of -> (gid, game-name,game rating given, game reviw) of cid
 def findRatings_bycid_SQL(cid):
 
+def remove_adress(cid,adr_id):
 
+def remove_wallet(cid,walet_id)
+
+# Returns -> (order_id,order_status,total_price,transaction_id,w_id,addr_id,item_list)
+# item_list -> list of (game_id, quantity)
+def Get_Customer_Orders(cid):
 
 # return (Game Name, found) found-> bool yes or no
 def findgame_SQL(game_id):
 
+# returns nothing
+# item_list -> list of (game_id, quantity)
+    # Node this should update bought relation as well
+def log_order(cid,order_status,total_price,transaction_id,item_list,w_id,addr_id):
 
-
+# return total of cart
 def Calculate_Total_Price_SQL(cid, cart):
 
 
+# return balance of wid
+def Check_Wallet_Balance_SQL(cid,wid):
 
-def Check_Wallet_Balance_SQL(cid):
-
-
+# return list of wallet ids only
+def Load_wallets(cid):
 
     # add money to wallet
 def Payment_SQL(cid, amount_to_add):
 
-def Transaction_SQL(cid, new_wallet_bal):
+# Returns the transaction id and log a transaction 
+    # a success transaction
+    # does entry to table and cuts the amt from wallet
+def Transaction_SQL(cid, wid, total_price):
+
+# Returns the transaction id and log a transaction 
+    # a un-success transaction bad boy
+def log_unsuccessfull_transaction(cid, wid, total_price):
+
+
+#  Return a list of (addr_id,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
+def Load_addresses(cid):
+
+# return a list of wallet ids
+def Load_wallets(cid):
+
+# return addr id  
+#  do check if complete copy this table should be a set
+def Register_address(Customer_ID,Address_Line1,Address_Line2,City,State,Postal_Code,Country):
+
+# return wallet id
+def Register_wallet(Customer_ID,Balence):
+
+# Return status ->
+# 0 for success , 1 for user already exists , else something wrong
+def update_mail(cid,email):
+
+def update_name(cid,first_name,last_name):
+
+def update_mobile(cid,mobile):
+
+def update_dob(cid,dob):
+
+def update_pass(cid,password):
 
 def Get_Customer_Details_SQL(cid):
     mycursor = connection.cursor()
