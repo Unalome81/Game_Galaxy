@@ -348,10 +348,10 @@ def View_Profile(c_user):
     
 def View_Games(c_user):
     clearscreen()
-    rating_filter = -1
-    while rating_filter < 0 or rating_filter > 10:
-        rating_filter = int(input("Games: Enter your rating threshold 0 - 10: "))
-        if rating_filter < 0 or rating_filter > 10:
+    min_rating_filter = -1
+    while min_rating_filter < 0 or min_rating_filter > 10:
+        min_rating_filter = int(input("Games: Enter your rating threshold 0 - 10: "))
+        if min_rating_filter < 0 or min_rating_filter > 10:
             print("Games: Input is not in the specified limits, please enter the rating filter again")
     
     price_filter_max = -1
@@ -379,8 +379,8 @@ def View_Games(c_user):
         else:
             chk = True
 
-    # Print games with these filters: rating_filter: 1-10, price_filter: no constraint, genre_filter = "*" for all
-    available_games = sql.Show_Games_SQL(rating_filter, price_filter_min, price_filter_max, genre_filter)
+    # Print games with these filters: min_rating_filter: rating should be above this, price_filter: min ,max, genre_filter: = "*" for all list of things user likes
+    available_games = sql.Show_Games_SQL(min_rating_filter, price_filter_min, price_filter_max, genre_filter)
     if len(available_games) == 0:
         print("No games with the given constraints")
         return
