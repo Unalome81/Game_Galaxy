@@ -504,7 +504,7 @@ def Checkout(c_user,wid):
         add_money = input("Do you want to add money to your wallet? (yes/no): ")
         if add_money.lower() == 'yes':
             AddMoneyToWallet(c_user)
-            wallet_balance = sql.Check_Wallet_Balance_SQL(c_user.cid)
+            wallet_balance = sql.Check_Wallet_Balance_SQL(c_user.cid,wid)
             clearscreen()
             print("======================================================================================")
             print("Checkout")
