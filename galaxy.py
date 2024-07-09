@@ -52,6 +52,10 @@ class User():
         State = input("Enter State : ")
         Postal_Code = input("Enter Postal_Code : ")
         Country = input("Enter Country : ")
+        li=[Address_Line1,Address_Line2,City,State,Postal_Code,Country]
+        for i in self.adr:
+            if(i==li):
+                return
         addr_id=sql.Register_address(Customer_ID,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
         self.adr.append(addr_id,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
 
@@ -219,7 +223,6 @@ def Home(c_user):
             print("Home: Invalid Input")
         time.sleep(wt_time)    
 
-# change in particulars and password
 def manage_addr(c_user):
     c=-2
     while c<-1 or c> len(c_user.adr):
@@ -298,6 +301,7 @@ def update(c_user):
         elif(c==5):
             confpassword="a"
             password="b"
+            old_password = input("Update: Enter old Password: ")
             while password!=confpassword:
                 password = input("Update: Choose a Password: ")
                 confpassword = input("Update: Confirm the Password: ")
@@ -306,13 +310,14 @@ def update(c_user):
                     retry = input("Do you wish to retry? (y for yes): ")
                     if retry.lower() != 'y':
                         return
-            sql.update_pass(c_user.cid,password)
+            s=sql.update_pass(c_user.cid,old_password,password)
+            if(s==0):
+                print("Password Updated Successfully")
+            else:
+                print("Wrong Old Password -> Update Failed :( Please Retry!!")
         else:
             print("Home: Invalid Input")
         time.sleep(wt_time) 
-
-
-
 
 def View_Profile(c_user):
     c = 0
@@ -503,7 +508,7 @@ def Checkout(c_user,wid):
         print("Insufficient wallet balance.")
         add_money = input("Do you want to add money to your wallet? (yes/no): ")
         if add_money.lower() == 'yes':
-            AddMoneyToWallet(c_user)
+            AddMoneyToWallet(c_user,wid)
             wallet_balance = sql.Check_Wallet_Balance_SQL(c_user.cid,wid)
             clearscreen()
             print("======================================================================================")
@@ -527,7 +532,7 @@ def Checkout(c_user,wid):
         transaction_id=sql.log_unsuccessfull_transaction(c_user.cid, wid, total_price)
         return False, total_price, transaction_id
     
-def AddMoneyToWallet(c_user):
+def AddMoneyToWallet(c_user,wid):
     amount_to_add = -1
     while amount_to_add <= 0:
         try:
@@ -536,7 +541,7 @@ def AddMoneyToWallet(c_user):
                 print("Invalid amount. Please enter a positive value.")
         except ValueError:
             print("Invalid input. Please enter a numeric value.")
-    sql.Payment_SQL(c_user.cid, amount_to_add)
+    sql.Payment_SQL(c_user.cid,wid, amount_to_add)
     print("...")
     time.sleep(wt_time)
 
