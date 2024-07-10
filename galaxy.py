@@ -541,9 +541,9 @@ def AddMoneyToWallet(c_user,wid):
                 print("Invalid amount. Please enter a positive value.")
         except ValueError:
             print("Invalid input. Please enter a numeric value.")
-    sql.Payment_SQL(c_user.cid,wid, amount_to_add)
     print("...")
     time.sleep(wt_time)
+    sql.Payment_SQL(c_user.cid,wid, amount_to_add)
 
 def Authentication():
     clearscreen()
