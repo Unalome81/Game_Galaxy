@@ -31,6 +31,7 @@ CREATE TABLE Orders (
   Transaction_ID int,
   Address_ID int,
   Game_ID int,
+  Quantity int not null default 0,
   PRIMARY KEY (Order_ID)
 );
 
