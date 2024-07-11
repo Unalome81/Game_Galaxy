@@ -5,7 +5,7 @@ CREATE TABLE Customer (
   Customer_ID varchar(50),
   FirstName varchar(100),
   LastName varchar(100),
-  PhoneNo int,
+  PhoneNo bigint,
   Email varchar(100),
   DOB date,
   PRIMARY KEY (Customer_ID)
