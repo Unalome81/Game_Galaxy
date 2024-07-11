@@ -3,7 +3,7 @@ import platform
 import os
 import sql_queries as sql
 
-wt_time = 5
+wt_time = 1
 
 class User():
     cart=[]
@@ -34,8 +34,11 @@ class User():
             if(i[0]==item):
                 i[2]=max(0,i[2]-q)
     def printaddr(self):
+        if(len(self.adr)==0):
+            print("No addr yet registerd!!")
+            return
         print(f"S.no. ",end="")
-        for j in self.adr[i]:
+        for j in self.adr[0]:
             print(f"{j} ",end="\t")
         print()
         for i in range(len(self.adr)):
@@ -60,8 +63,11 @@ class User():
         self.adr.append(addr_id,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
 
     def printwallet(self):
+        if(len(self.wallets)==0):
+            print("No wallet were found!!")
+            return
         print(f"S.no. ",end="")
-        for j in self.wallets[i]:
+        for j in self.wallets[0]:
             print(f"{j} ",end="\t")
         print()
         for i in range(len(self.wallets)):
@@ -250,13 +256,13 @@ def manage_wlt(c_user):
     while c<-1 or c> len(c_user.wallets):
         clearscreen()
         print("======================================================================================")
-        print(f"Your registerd addreses")
+        print(f"Your registerd wallets")
         print("======================================================================================")    
         c_user.printwallet()
         print()
         print("Enter -1 to go back")
-        print("Enter 0 to add another address")
-        print("Else enter the S.No of the address Record to be removed")
+        print("Enter 0 to add another wallets")
+        print("Else enter the S.No of the wallet Record to be removed")
         c = int(input("Your input : "))
         if(c<-1 or c> len(c_user.wallets)):
             print("Error: Invalid input")
@@ -327,7 +333,7 @@ def View_Profile(c_user):
         print(f"Profile: {c_user.f_name}")
         print("======================================================================================")
         print("Profile: \n\t Enter 1 to view your details \n\t Enter 2 to manage your address list \n\t Enter 3 to manage your wallets \n\t Enter 4 to view your old orders \n\t Enter 5 to edit your particulars \n\t Enter 6 to go back to home")
-        c = input()
+        c = int(input())
         if c == 1:
             Customer_Details = sql.Get_Customer_Details_SQL(c_user.cid)
             for key, value in Customer_Details.items():
@@ -377,7 +383,7 @@ def View_Games(c_user):
         print(" ".join(available_genres))
 
         genre_filter = input("Games: Enter your preferred genre, if you want to see all genres enter ALL: ")
-        if genre_filter == "ALL":
+        if genre_filter == "ALL" or genre_filter == 'all':
             break
         if genre_filter not in available_genres:
             print("Games: Sorry, we do not have this genre, please select from our existing list")
@@ -452,9 +458,11 @@ def Cart(c_user):
             print("======================================================================================")
             print(f"Cart: {c_user.f_name}'s Cart Items")
             print("======================================================================================")
-            for item in c_user.cart_items:
-                print(f"\tGame ID: {item[0]}, Game Name {item[1]} , Quantity: {item[2]}")
-            input("Press Any Key to continue...")
+            if(len(c_user.cart)!=0):
+
+                for item in c_user.cart:
+                    print(f"\tGame ID: {item[0]}, Game Name {item[1]} , Quantity: {item[2]}")
+                input("Press Any Key to continue...")
         elif ch == 4:
             View_Games(c_user)
             time.sleep(wt_time)
