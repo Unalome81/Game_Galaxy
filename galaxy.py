@@ -37,14 +37,12 @@ class User():
         if(len(self.adr)==0):
             print("No addr yet registerd!!")
             return
-        print(f"S.no. ",end="")
-        for j in self.adr[0]:
-            print(f"{j} ",end="\t")
+        print(f"(S.no.) {['Address_Line1','Address_Line2','City','State','Postal_Code','Country']}")
         print()
         for i in range(len(self.adr)):
-            print(f"({i+1}) ",end="")
-            for j in self.adr[i]:
-                print(f"{self.adr[i][j]} , ",end="")
+            print(f"({i+1}) {self.adr[i][1:]} ",end="")
+            # for j in self.adr[i]:
+            #     print(f"{j} , ",end="")
             print()
     def add_addr(self):
         print("Enter the details of the new address")
@@ -60,21 +58,16 @@ class User():
             if(i==li):
                 return
         addr_id=sql.Register_address(Customer_ID,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
-        self.adr.append(addr_id,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
+        self.adr.append((addr_id,Address_Line1,Address_Line2,City,State,Postal_Code,Country))
 
     def printwallet(self):
         if(len(self.wallets)==0):
             print("No wallet were found!!")
             return
-        print(f"S.no. ",end="")
-        for j in self.wallets[0]:
-            print(f"{j} ",end="\t")
+        print(f"S.no. Wallet_id Balance")
+        for j in range(len(self.wallets)):
+            print(f"{j+1} {self.wallets[j]} {sql.Check_Wallet_Balance_SQL(self.cid,self.wallets[j])}",end="\t")
         print()
-        for i in range(len(self.wallets)):
-            print(f"({i+1}) ",end="")
-            for j in self.wallets[i]:
-                print(f"{self.wallets[i][j]} , ",end="")
-            print()
     
     def add_wallet(self):
         print("Enter the details of the new address")
@@ -92,10 +85,10 @@ class User():
     
     def rem_wallet(self,i):
         sql.remove_wallet(self.cid,self.wallets[i])
-        self.adr.pop(i)
+        self.wallets.pop(i)
     def rem_adr(self,i):
         sql.remove_adress(self.cid,self.adr[i][0])
-        self.wallets.pop(i)
+        self.adr.pop(i)
 
 def clearscreen():
     if platform.system() == 'Windows':
@@ -381,7 +374,7 @@ def View_Games(c_user):
     while not chk:
         available_genres = sql.Print_Genres_SQL()
         print()
-        print(" ".join(available_genres))
+        print(" , ".join(available_genres))
 
         genre_filter = input("Games: Enter your preferred genre, if you want to see all genres enter ALL: ")
         if genre_filter == "ALL" or genre_filter == 'all':
