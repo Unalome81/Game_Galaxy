@@ -1,13 +1,13 @@
 import mysql.connector
 import datetime
 
-connection = mysql.connector.connect(host="localhost", user='root', database='game_galaxy', password='fortune')
+connection = mysql.connector.connect(host="localhost", user='root', database='game_galaxy', password='nikhil')
 mycursor = connection.cursor()
 
 # Return status ->
 # 0 for success , 1 for user already exists , else something wrong 
 def Registration_SQL(first_name, last_name, mobile, dob, email, password):
-    query = "select customer_id from customer orders by customer_id desc limit 1"
+    query = "select customer_id from customer order by customer_id desc limit 1"
     mycursor.execute(query)
     z=mycursor.fetchall()
     for i in z:
@@ -26,7 +26,7 @@ def Registration_SQL(first_name, last_name, mobile, dob, email, password):
             mycursor.execute(query,values1)
             connection.commit()
             values2=cust_id,email,password
-            query2="insert into authentication(customer_id,emaill, HEX(AES_ENCRYPT('password123', 'project'))) values(%s,%s,HEX(AES_ENCRYPT(%s, 'project')))"
+            query2="insert into authentication(customer_id,email, customer_password) values(%s,%s,HEX(AES_ENCRYPT(%s, 'project')))"
             mycursor.execute(query2,values2)
             connection.commit()
             return 0
@@ -88,8 +88,9 @@ def Price_Range_SQL():
 # Print games with these filters: min_rating_filter: rating should be above this, price_filter: min ,max, genre_filter: = "*" for all list of things user likes
 def Show_Games_SQL(rating_filter, price_filter_min, price_filter_max, genre_filter):
     mycursor=connection.cursor()
+
     query = "select * from game where rating >= %s and price <= %s and price >=%s"
-    params = [rating_filter, price_filter_min,price_filter_max]
+    params = [rating_filter, price_filter_max, price_filter_min]
     if genre_filter != "*":
         query += " and genre = %s"
         params.append(genre_filter)
@@ -97,8 +98,8 @@ def Show_Games_SQL(rating_filter, price_filter_min, price_filter_max, genre_filt
     results = mycursor.fetchall()
     games = []
     for row in results:
-        game = {'game_id': row[0], 'title': row[1],'genre': row[2],'price': row[3],'rating': row[4],'release_date': row[5],'game_description': row[6],'developer': row[7]}
-        games.append(row)
+        game = {'game_id': row[0], 'game': row[1],'genre': row[2],'price': row[3],'rating': row[4],'release_date': row[5],'game_description': row[6],'developer': row[7]}
+        games.append(game)
     return games
 
 
@@ -164,8 +165,8 @@ def modifyRating(cid,gid,rating,rvw):
     mycursor.execute(query5,value5)
     connection.commit()
     
-# if rating found remove it , if found recalculate overall rating 
-def RemoveRating(cid,gid):
+# if rating found remove it , if found recalculate overall rating
+def RemnoveRating(cid,gid):
     mycursor = connection.cursor()
     query1='Select rating from game_review where game_id=%s and customer_id=%s'
     value1=gid,cid
@@ -367,9 +368,12 @@ def Load_addresses(cid):
     query = "SELECT * FROM address WHERE customer_id = %s"
     mycursor.execute(query, (cid,))
     results = mycursor.fetchall()
+    addresses=[]
     for i in results:
-        addresses=list(i)
-    addresses.pop(1)
+        l=list(i)
+        l.pop(1)
+        addresses.append(l)
+    return addresses
         
 # return a list of wallet ids
 def Load_wallets(cid):
@@ -473,9 +477,18 @@ def update_pass(cid,old_password,new_password):
 
 def Get_Customer_Details_SQL(cid):
     mycursor = connection.cursor()
-    query = "SELECT firstname, lastname, phoneno, email, dob FROM customer WHERE customer_id = %s"
+    query = "SELECT * FROM customer WHERE customer_id = %s"
     mycursor.execute(query, (cid,))
-    result = mycursor.fetchone()
+    result = mycursor.fetchall()
     for i in result:
-        customer = {"FirstName": i[0],"LastName": i[1],"PhoneNo": i[2],"Email": i[3],"DOB": i[4]}
+        customer = {"Customer_id": i[0] ,"FirstName": i[1],"LastName": i[2],"PhoneNo": i[3],"Email": i[4],"DOB": i[5]}
     return customer
+
+def Print_Genres_SQL():
+    mycursor = connection.cursor()
+    mycursor.execute("select distinct genre from game")
+    result = mycursor.fetchall()
+    l=[]
+    for i in result:
+        l.append(i[0])
+    return l
