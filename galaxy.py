@@ -359,10 +359,10 @@ def View_Profile(c_user):
     
 def View_Games(c_user):
     clearscreen()
-    min_rating_filter = -1
-    while min_rating_filter < 0 or min_rating_filter > 10:
-        min_rating_filter = int(input("Games: Enter your rating threshold 0 - 10: "))
-        if min_rating_filter < 0 or min_rating_filter > 10:
+    rating_filter = -1
+    while rating_filter < 0 or rating_filter > 10:
+        rating_filter = int(input("Games: Enter your rating threshold 0 - 10: "))
+        if rating_filter < 0 or rating_filter > 10:
             print("Games: Input is not in the specified limits, please enter the rating filter again")
     
     price_filter_max = -1
@@ -380,30 +380,29 @@ def View_Games(c_user):
     genre_filter = "*"
     while not chk:
         available_genres = sql.Print_Genres_SQL()
+        print()
         print(" ".join(available_genres))
 
         genre_filter = input("Games: Enter your preferred genre, if you want to see all genres enter ALL: ")
         if genre_filter == "ALL" or genre_filter == 'all':
+            genre_filter = "*"
             break
         if genre_filter not in available_genres:
             print("Games: Sorry, we do not have this genre, please select from our existing list")
         else:
             chk = True
 
-    # Print games with these filters: min_rating_filter: rating should be above this, price_filter: min ,max, genre_filter: = "*" for all list of things user likes
-    available_games = sql.Show_Games_SQL(min_rating_filter, price_filter_min, price_filter_max, genre_filter)
+    # Print games with these filters: rating_filter: rating should be above this, price_filter: min ,max, genre_filter: = "*" for all list of things user likes
+    available_games = sql.Show_Games_SQL(rating_filter, price_filter_min, price_filter_max, genre_filter)
     if len(available_games) == 0:
         print("No games with the given constraints")
         return
-
-    print("S.No.\t\t\t Name of the Game")
-    for i in range(len(available_games)):
-        print(f"({i+1})\t\t\t{available_games[i]['game']}")
     
     while True:
         clearscreen()
+        print("S.No.\t\t\t Name of the Game\t\t\t Game_ID\n")
         for i in range(len(available_games)):
-            print(f"({i+1})\t\t\t{available_games[i]['game']}")
+            print(f"({i+1})\t\t\t{available_games[i]['game']}\t\t\t{available_games[i]['game_id']}")
         c = int(input("Enter S.No. to view a game else Enter 0 to go back to Homescreen: "))
         if c == 0:
             break
