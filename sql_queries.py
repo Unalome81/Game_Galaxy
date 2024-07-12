@@ -321,7 +321,7 @@ def Payment_SQL(cid, wid, amount_to_add):
     # does entry to table and cuts the amt from wallet
 def Transaction_SQL(cid, wid, total_price):  
     mycursor = connection.cursor()
-    query1 = "select trans_id from transaction orders by trans_id desc limit 1"
+    query1 = "select trans_id from transaction order by trans_id desc limit 1"
     mycursor.execute(query1)
     z=mycursor.fetchall()
     for i in z:
@@ -344,7 +344,7 @@ def Transaction_SQL(cid, wid, total_price):
     # a un-success transaction bad boy
 def log_unsuccessfull_transaction(cid, wid, total_price):
     mycursor = connection.cursor()
-    query1 = "select trans_id from transaction orders by trans_id desc limit 1"
+    query1 = "select trans_id from transaction order by trans_id desc limit 1"
     mycursor.execute(query1)
     z=mycursor.fetchall()
     for i in z:
@@ -389,12 +389,12 @@ def Load_wallets(cid):
 # return addr id 
 def Register_address(cid,Address_Line1,Address_Line2,City,State,Postal_Code,Country):
     mycursor=connection.cursor()
-    query1 = "select address_id from address orders by address_id desc limit 1"
+    query1 = "select address_id from address order by address_id desc limit 1"
     mycursor.execute(query1)
     z=mycursor.fetchall()
     for i in z:
         aid=i[0]+1
-    query='insert into addreess values(%s,%s,%s,%s,%s,%s,%s)'
+    query='insert into address values(%s,%s,%s,%s,%s,%s,%s,%s)'
     values=(aid,cid,Address_Line1,Address_Line2,City,State,Postal_Code,Country)
     mycursor.execute(query,values)
     connection.commit()
@@ -402,7 +402,7 @@ def Register_address(cid,Address_Line1,Address_Line2,City,State,Postal_Code,Coun
 
 def Register_wallet(cid,balance):
     mycursor=connection.cursor()
-    query = "select wallet_id from wallet orders by wallet_id desc limit 1"
+    query = "select wallet_id from wallet order by wallet_id desc limit 1"
     mycursor.execute(query)
     z=mycursor.fetchall()
     wid=0
@@ -466,9 +466,15 @@ def update_pass(cid,old_password,new_password):
     check2 = mycursor.fetchone()
     if check2:
         print("Authentication successful")
-        query3 = "update authentication set customer_password = %s where customer_id = %s"
-        value3 = (new_password, cid)
-        mycursor.execute(query3, value3)
+        email_query='select email from authentication where customer_id=%s'
+        mycursor.execute(email_query,(cid,))
+        check_email=mycursor.fetchall()
+        del_query='delete from authentication where customer_id=%s'
+        mycursor.execute(del_query,(cid,))
+        connection.commit()
+        value3=cid,check_email,new_password
+        query3="insert into authentication(customer_id,email, customer_password) values(%s,%s,HEX(AES_ENCRYPT(%s, 'project')))"
+        mycursor.execute(query3,value3)
         connection.commit()
         return 0
     else:
