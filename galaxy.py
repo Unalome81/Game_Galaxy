@@ -22,17 +22,23 @@ class User():
         sql.Dump_cart_SQL(self.cid,self.cart)
     def add_to_cart(self,item,name,quantity):
         if(not self.change_item_quant(item,quantity,False)):
-            self.cart.append((item,name,quantity))
+            self.cart.append([item,name,quantity])
+            self.end_session()
     def change_item_quant(self,item,new_q,f):
         for i in self.cart:
             if(i[0]==item):
                 i[2]=new_q if f else i[2]+new_q
+                self.end_session()
                 return True
         return False
     def remove_item_quant(self,item,q):
-        for i in self.cart:
-            if(i[0]==item):
-                i[2]=max(0,i[2]-q)
+        for i in range (len(self.cart)):
+            if(self.cart[i][0]==item):
+                if self.cart[i][2]<=q:
+                    self.cart.pop(i)
+                else:
+                    self.cart[i][2]=max(0,self.cart[i][2]-q)
+        self.end_session()
     def printaddr(self):
         if(len(self.adr)==0):
             print("No addr yet registerd!!")
