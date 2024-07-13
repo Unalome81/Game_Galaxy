@@ -466,14 +466,8 @@ def update_pass(cid,old_password,new_password):
     check2 = mycursor.fetchone()
     if check2:
         print("Authentication successful")
-        email_query='select email from authentication where customer_id=%s'
-        mycursor.execute(email_query,(cid,))
-        check_email=mycursor.fetchall()
-        del_query='delete from authentication where customer_id=%s'
-        mycursor.execute(del_query,(cid,))
-        connection.commit()
-        value3=cid,check_email,new_password
-        query3="insert into authentication(customer_id,email, customer_password) values(%s,%s,HEX(AES_ENCRYPT(%s, 'project')))"
+        query3="update authentication set customer_password = HEX(AES_ENCRYPT(%s,'project')) where customer_id = %s"
+        value3=new_password,cid
         mycursor.execute(query3,value3)
         connection.commit()
         return 0
