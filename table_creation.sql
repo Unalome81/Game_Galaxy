@@ -32,7 +32,7 @@ CREATE TABLE Orders (
   Address_ID int,
   Game_ID int,
   Quantity int not null default 0,
-  PRIMARY KEY (Order_ID)
+  PRIMARY KEY (Order_ID,Game_ID)
 );
 
 CREATE TABLE Cart (
@@ -57,7 +57,7 @@ CREATE TABLE Address (
   City varchar(30),
   State varchar(30),
   Postal_Code varchar(6),
-  Country varchar(10),
+  Country varchar(30),
   PRIMARY KEY (Address_ID)
 );
 
