@@ -38,18 +38,19 @@ class User():
                     self.cart.pop(i)
                 else:
                     self.cart[i][2]=max(0,self.cart[i][2]-q)
+                break
         self.end_session()
     def printaddr(self):
         if(len(self.adr)==0):
             print("No addr yet registerd!!")
             return
         print(f"(S.no.) {['Address_Line1','Address_Line2','City','State','Postal_Code','Country']}")
-        print()
         for i in range(len(self.adr)):
             print(f"({i+1}) {self.adr[i][1:]} ",end="")
             # for j in self.adr[i]:
             #     print(f"{j} , ",end="")
             print()
+        print()
     def add_addr(self):
         print("Enter the details of the new address")
         Customer_ID=self.cid
@@ -73,6 +74,7 @@ class User():
         print(f"S.no. Wallet_id Balance")
         for j in range(len(self.wallets)):
             print(f"{j+1} {self.wallets[j]} {sql.Check_Wallet_Balance_SQL(self.cid,self.wallets[j])}",end="\t")
+            print()        
         print()
     
     def add_wallet(self):
@@ -124,7 +126,7 @@ def Login():
         elif c == 2:
             print("Login: Wrong Password!")
         time.sleep(wt_time)
-        ch = input("Login: \n\t1. Continue on this page \n\t2. Go back to Authentication Page: ")
+        ch = int(input("Login: \n\t1. Continue on this page \n\t2. Go back to Authentication Page: "))
 
     Authentication()
 
@@ -183,8 +185,9 @@ def Game_Review(c_user):
             else:
                 for i in l:
                     print(f"Game-ID - {i[0]}: Game Name - {i[1]} , Rating given - {i[2]}, Review - {i[3]}")
+                    time.sleep(2)
         elif(c==2):
-            game_id = input("Enter the Game ID to Review")
+            game_id = int(input("Enter the Game ID to Review : "))
             # check if bought
             if(sql.checkbought(c_user.cid,game_id)):
                 rating_filter = -1
@@ -197,11 +200,12 @@ def Game_Review(c_user):
             else:
                 print("Please Buy this game first!!")
         elif(c==3):
-            game_id = input("Enter the Game ID whose Review is to be removed: ")
+            game_id = int(input("Enter the Game ID whose Review is to be removed: "))
             sql.RemnoveRating(c_user.cid,game_id)
             print("Cart: Review removed successfully!")
         else:
             print("Home: Invalid Input")
+        time.sleep(wt_time)
     return
 
 def Home(c_user):
@@ -345,9 +349,11 @@ def View_Profile(c_user):
             print("Your orders:")
             Customer_Details = sql.Get_Customer_Orders(c_user.cid)
             for i in Customer_Details:
-                print(f"order_id : {i[0]} , order_status : {i[1]} , total_price : {i[2]} , transaction_id : {i[3]} , w_id : {i[4]} , addr_id : {i[5]} , item_list :")
+                print(f"order_id : {i[0][0]} , order_status : {i[1]} , total_price : {i[2]} , transaction_id : {i[3]} , w_id : {i[4][0][0]} , addr_id : {i[5]} , item_list :")
+                print()
                 for j in i[6]:
                     print(f"Game_id : {j[0]}  Quantity : {j[1]}")
+            input("Press Any Key to continue...")
         elif c == 5:
             update(c_user)
         elif c == 6:
@@ -434,7 +440,7 @@ def Cart(c_user):
         print("Cart: \n\t1. Add a game to the cart \n\t2. Remove game from cart \n\t3. View cart \n\t4. View available games \n\t5. Checkout \n\t6. Go back to Home")
         ch = int(input("Enter your choice: "))
         if ch == 1:
-            game_id = input("Cart: Enter the Game ID to add to cart: ")
+            game_id = int(input("Cart: Enter the Game ID to add to cart: "))
             game,found=sql.findgame_SQL(game_id)
             if(found):
                 quantity = int(input("Cart: Enter the quantity: "))
@@ -445,7 +451,7 @@ def Cart(c_user):
             else:
                 print("Cart: Game not found in our catlog!! Game id is invalid! Please Retry")
         elif ch == 2:
-            game_id = input("Cart: Enter the Game ID to remove from cart: ")
+            game_id = int(input("Cart: Enter the Game ID to remove from cart: "))
             quantity = input("Cart: Enter the quantity to remove (ENTER \'*\' to remove all) : ")
             quantity= 100000000000 if(quantity=='*') else int(quantity)
             c_user.remove_item_quant(game_id,quantity)
@@ -486,12 +492,14 @@ def Cart(c_user):
                     c_user.add_wallet()
                     c=len(c_user.wallets)
                 wallet_index=c-1
-                i = input(f"wallet ID : {wallet_index} \n Addresss ID : {add_index} \n If you wish to proceed, Enter 'y': ")
+                i = input(f"wallet ID : {c_user.wallets[wallet_index]} \n Addresss ID : {c_user.adr[add_index][0]} \n If you wish to proceed, Enter 'y': ")
                 if i.lower()=='y':
-                    status, total_price, transaction_id =Checkout(c_user,c_user[wallet_index])
+                    status, total_price, transaction_id =Checkout(c_user,c_user.wallets[wallet_index])
                     if(status):
+                        # print("Came here")
                         sql.log_order(c_user.cid,status,total_price,transaction_id,[(i[0],i[2]) for i in c_user.cart],c_user.wallets[wallet_index],c_user.adr[add_index][0])
                         c_user.cart.clear()
+                        c_user.end_session()
             time.sleep(wt_time)
         elif ch == 6:
             return
