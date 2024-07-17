@@ -109,7 +109,13 @@ def Load_cart_SQL(cid):
     query = 'select cart.game_id, game.title, cart.quantity from cart join game on cart.game_id = game.game_id where cart.customer_id = %s'
     mycursor.execute(query, (cid,))
     results = mycursor.fetchall()
-    return results
+    l=[]
+    for i in results:
+        x=[]
+        for j in i:
+            x.append(j)
+        l.append(x)
+    return l
         
 # cart is  a list of tuples ->(gid, gname, quantity)
 def Dump_cart_SQL(cid, cart):  #NOT CHECKED
@@ -136,8 +142,9 @@ def Check_Wallet_Balance_SQL(cid,wid):
 # check if bought (bool)
 def checkbought(cid,game_id):
     mycursor = connection.cursor()
-    query = "SELECT 1 FROM orders WHERE Customer_ID = %s and game_id = %s"
-    mycursor.execute(query, (cid,game_id))
+    query = "SELECT 1 FROM orders WHERE Customer_ID = %s and game_id = %s and order_status = %s"
+    stat=1
+    mycursor.execute(query, (cid,game_id,stat))
     result = mycursor.fetchone()
     if(result):
         return True
@@ -152,7 +159,7 @@ def modifyRating(cid,gid,rating,rvw):
     mycursor = connection.cursor()
     query4='Select rating from game where game_id=%s'
     mycursor.execute(query4,(gid,))
-    p_rating=mycursor.fetchall[0][0]
+    p_rating=mycursor.fetchall()[0][0]
     if(p_rating==-1):
         new_rating=rating
     else:
@@ -175,6 +182,8 @@ def RemnoveRating(cid,gid):
     if result:
         rating_tobe_deleted=result[0][0]
     else:
+        print('Rating not found!!')
+        return
         rating_tobe_deleted=0
     query2='delete from game_review where customer_id=%s and game_id=%s'
     value2=cid,gid
@@ -186,7 +195,7 @@ def RemnoveRating(cid,gid):
     count=mycursor.fetchall()[0][0]
     query4='Select rating from game where game_id=%s'
     mycursor.execute(query4,(gid,))
-    old_rating=mycursor.fetchall[0][0]
+    old_rating=mycursor.fetchall()[0][0]
     try:
         new_rating=((old_rating * (count+1) )- rating_tobe_deleted) / (count)
     except ZeroDivisionError:
@@ -241,16 +250,18 @@ def Get_Customer_Orders(cid):
     order_ids = mycursor.fetchall()
     r=[]
     for i in order_ids:
-        mycursor.execute("SELECT order_status,total_price,transaction_id,wallet_id,addr_id,game_id,quantity FROM orders WHERE order_id = %s",(i,))
+        mycursor.execute("SELECT order_status,order_amount,transaction_id,address_id,game_id,quantity FROM orders WHERE order_id = %s",(i))
         result = mycursor.fetchall()
         order_status = result[0][0]
         total_price = result[0][1]
         transaction_id = result[0][2]
-        w_id = result[0][3]
-        addr_id = result[0][4]
+        addr_id = result[0][3]
         x=[]
         for j in result:
-            x.append((j[5],j[6]))
+            x.append((j[4],j[5]))
+        mycursor.execute("SELECT wallet_id FROM transaction where trans_id = %s",(transaction_id,))
+        result2 = mycursor.fetchall()
+        w_id = result2
         r.append((i,order_status,total_price,transaction_id,w_id,addr_id,x))        
     return r
 
@@ -269,7 +280,7 @@ def findgame_SQL(gid): #NEEDS TO CONIDER NOT FOUND CASE
 
 # returns nothing
 # item_list -> list of (game_id, quantity)
-def log_order(cid,order_status,total_price,transaction_id,item_list,addr_id): #NO NEED FOR WID
+def log_order(cid,order_status,total_price,transaction_id,item_list,wid,addr_id): #NO NEED FOR WID
     mycursor = connection.cursor()
     mycursor.execute("SELECT distinct order_id FROM orders")
     order_ids = mycursor.fetchall()
@@ -332,8 +343,8 @@ def Transaction_SQL(cid, wid, total_price):
     query2='insert into transaction values(%s,%s,%s,%s,%s)'
     mycursor.execute(query2,values2)
     connection.commit()
-    values3=total_price,cid
-    query3='update wallet set balance=balance - %s where customer_id=%s'
+    values3=total_price,wid
+    query3='update wallet set balance=balance - %s where wallet_id=%s'
     mycursor.execute(query3,values3)
     connection.commit()
     return tid
@@ -354,10 +365,6 @@ def log_unsuccessfull_transaction(cid, wid, total_price):
     values2=(tid,wid,type_trans,now_date,total_price)
     query2='insert into transaction values(%s,%s,%s,%s,%s)'
     mycursor.execute(query2,values2)
-    connection.commit()
-    values3=total_price,cid
-    query3='update wallet set balance=balance - %s where customer_id=%s'
-    mycursor.execute(query3,values3)
     connection.commit()
     return tid
 
